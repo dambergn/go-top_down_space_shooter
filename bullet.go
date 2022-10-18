@@ -6,7 +6,7 @@ import (
 
 const (
 	bulletSize  = 10
-	bulletSpeed = 0.15
+	bulletSpeed = 10
 )
 
 // type bullet struct {

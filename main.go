@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -11,7 +12,13 @@ import (
 const (
 	screenWidth  = 720
 	screenHeight = 1280
+
+	targetTicksPerSecond = 60
 )
+
+var delta float64
+
+var frames float64
 
 func main() {
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
@@ -53,6 +60,8 @@ func main() {
 	initBulletPool(renderer)
 
 	for {
+		frameStartTime := time.Now()
+
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() { // Queue of sdl events
 			switch event.(type) { // Allows window to be closed
 			case *sdl.QuitEvent:
@@ -88,5 +97,11 @@ func main() {
 		// }
 
 		renderer.Present()
+
+		// fmt.Println(time.Since(frameStartTime))
+		frames++
+		delta = time.Since(frameStartTime).Seconds() * targetTicksPerSecond
+		// fmt.Println("FPS:", math.Floor(frames/time.Since(frameStartTime).Seconds()))
+		// fmt.Println("frames:", frames)
 	}
 }
