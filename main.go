@@ -10,17 +10,32 @@ import (
 )
 
 const (
-	screenWidth  = 720
-	screenHeight = 1280
-
-	targetTicksPerSecond = 60
+	screenWidth                 = 720
+	screenHeight                = 1280
+	targetTicksPerSecond        = 60
+	setFPS               uint32 = targetTicksPerSecond
 )
 
-var delta float64
+var (
+	delta      float64
+	frameCount uint32
+	timerFPS   uint32
+	lastFrame  uint32
+	lastTime   uint32
+	fps        uint32
+)
 
-var frames float64
+func calcFPS() {
+	lastFrame = sdl.GetTicks()
+	if lastFrame >= (lastTime + 1000) {
+		lastTime = lastFrame
+		fps = frameCount
+		frameCount = 0
+	}
+}
 
 func main() {
+	// initilizeWindow()
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		// panic(err)
 		fmt.Println("initializing SDL:", err)
@@ -38,6 +53,8 @@ func main() {
 	}
 	defer window.Destroy()
 
+	// sdl.RENDERER_PRESENTVSYNC added so not to use 100% gpu limits to 60fps
+	// renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED|sdl.RENDERER_PRESENTVSYNC)
 	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		fmt.Println("Initializing renderer:", err)
@@ -59,7 +76,8 @@ func main() {
 
 	initBulletPool(renderer)
 
-	for {
+	// for {
+	for _ = range time.Tick(time.Microsecond * 1) {
 		frameStartTime := time.Now()
 
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() { // Queue of sdl events
@@ -70,6 +88,11 @@ func main() {
 		}
 		renderer.SetDrawColor(255, 255, 255, 255) // White
 		renderer.Clear()
+		frameCount++
+		timerFPS = sdl.GetTicks() - lastFrame
+		if timerFPS < (1000 / setFPS) {
+			sdl.Delay((1000 / setFPS) - timerFPS)
+		}
 
 		for _, elem := range elements {
 			if elem.active {
@@ -91,17 +114,11 @@ func main() {
 			return
 		}
 
-		// for _, bul := range bulletPool {
-		// 	bul.draw(renderer)
-		// 	bul.update()
-		// }
-
 		renderer.Present()
-
-		// fmt.Println(time.Since(frameStartTime))
-		frames++
+		calcFPS()
 		delta = time.Since(frameStartTime).Seconds() * targetTicksPerSecond
-		// fmt.Println("FPS:", math.Floor(frames/time.Since(frameStartTime).Seconds()))
-		// fmt.Println("frames:", frames)
+		fmt.Print("\033[H\033[2J") // Clears console
+		fmt.Println("FPS:", fps)
+		// fmt.Printf("%+v\n", elements)
 	}
 }

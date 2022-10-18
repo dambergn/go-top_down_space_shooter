@@ -90,12 +90,3 @@ func (mover *keyboardShooter) shoot(x, y float64) {
 func (mover *keyboardShooter) onCollision(other *element) error {
 	return nil
 }
-
-// func (mover *keyboardShooter) shoot(x, y float64) {
-// 	if bul, ok := bulletFromPool(); ok {
-// 		bul.active = true
-// 		bul.x = x
-// 		bul.y = y
-// 		bul.angle = 270 * (math.Pi / 180)
-// 	}
-// }
