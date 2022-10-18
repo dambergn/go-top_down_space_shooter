@@ -77,6 +77,11 @@ func main() {
 			}
 		}
 
+		if err := checkCollisions(); err != nil {
+			fmt.Println("Checking collisions:", err)
+			return
+		}
+
 		// for _, bul := range bulletPool {
 		// 	bul.draw(renderer)
 		// 	bul.update()

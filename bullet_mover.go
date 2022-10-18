@@ -32,5 +32,13 @@ func (mover *bulletMover) onUpdate() error {
 		cont.position.y > screenHeight || cont.position.y < 0 {
 		cont.active = false
 	}
+
+	mover.container.collisions[0].center = cont.position
+
+	return nil
+}
+
+func (mover *bulletMover) onCollision(other *element) error {
+	mover.container.active = false
 	return nil
 }
